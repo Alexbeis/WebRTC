@@ -1,0 +1,118 @@
+/********NAV BAR*******/
+.navbar {
+    border: 1px solid black;
+    background-color: #333;
+}
+
+li {
+    display: inline;
+    float:right;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover: not(.active) {
+    background-color: #111;
+}
+
+.active {
+    background-color: #4CAF50;
+}
+
+/******VIDEO CONTAINERS********/
+
+.widget_container {
+    right: 0px;
+    position: fixed;
+    bottom: 30px;
+    z-index: 99999999999999;
+}
+.widget_body {
+    width: 640px;
+    height: 480px;
+    position: relative;
+}
+.large_video {
+
+    height: 100% ;
+    width: 100% ;
+    border: 2px solid grey!important;
+    background: black;
+}
+.mini_video {
+    position: absolute;
+    height: 30% ;
+    width: 30% ;
+    top: 0px;
+    right: 0px;
+    opacity: 0.75;
+    border: 2px solid blue!important;
+    background: grey;
+}
+
+
+/*#myVideoTag  {
+    background: linear-gradient(to bottom, #ff670f 0%,#e20d0d 100%);
+     border: 10px solid blue !important;
+    opacity: 0.6;
+    box-shadow:  2px 2px 2px rgba(255, 255, 255, 0.75);
+
+}
+
+#theirVideoTag  {
+    background: linear-gradient(to bottom, #ff670f 0%,#e20d0d 100%);
+     border: 10px solid blue !important;
+    opacity: 0.6;
+    box-shadow:  2px 2px 2px rgba(255, 255, 255, 0.75);
+}
+*/
+body {
+    margin: 0 auto;
+    width: relative;
+    background-color: darkgray;
+
+}
+.grayscale_filter {
+    -webkit-filter: saturate(0.03);
+    filter: saturate(0.03);
+}
+
+/*********CHAT AREA***********/
+div.chat {
+    position: absolute;
+    float:right;
+    right: 0;
+    width: 630px;
+    height: 100px;
+    top: 70px;
+    bottom:auto;
+    background: darkgray;
+    /*overflow: auto;*/
+
+}
+#chatArea {
+    position: absolute;
+    float:right;
+    height: 500px;
+    /*right: 0;
+    width: 630px;
+    
+    
+    overflow: auto;
+    */
+    
+}

@@ -1,0 +1,74 @@
+.jumbotron {
+	padding-top: 78px;
+
+	.widget_container {
+
+		z-index: 99999999999999;
+	}
+	.widget_body {
+
+		height: 100% ;
+		width: 100% ;
+		position: relative;
+
+		.large_video {
+
+			min-height: 480px;
+			height: 100% ;
+			width: 100% ;
+			border: 2px solid grey!important;
+			background: black;
+			border-radius: 10px;
+		}
+		.mini_video {
+			position: absolute;
+			height: 30% ;
+			width: 30% ;
+			top: 0px;
+			right: 0px;
+			opacity: 0.75;
+			border: 2px solid blue!important;
+			background: grey;
+			border-radius: 10px;
+		}
+	}
+}
+
+#chat {
+	margin-top: 60px;
+}
+#chatAreaOutput {
+	margin:  20px 0;
+	padding: 10px;
+	#chatArea {
+		overflow-y:auto;
+		border-radius: 10px;
+		width: 100%;
+		min-height: 200px;
+		max-height: 200px;
+		padding: 10px;
+		.izquierda{
+			text-align: left;
+		}
+		.derecha {
+			text-align: right;
+		}
+	}
+	.mensaje {
+		width: 95%;
+		float: none;
+		clear: both;
+		display: block;
+		margin-bottom: 5px;
+	}
+}
+#signalingAreaOutput {
+	margin:  20px 0;
+	padding: 10px;
+	#signalingArea {
+		border-radius: 20px;
+		width: 100%;
+		min-height: 200px;
+		padding: 10px;
+	}
+}

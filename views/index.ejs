@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Virtual EET Teacher-Student conference</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/estilos.css">
+    <!-- Script for text chat Socket.io></-->
+    <script src='js/jquery-1.12.4.min.js'></script>
+    <script src='js/bootstrap.min.js'></script>
+    <script src='/socket.io/socket.io.js'></script>
+
+</head>
+<!-- This is the top level navigation, it stays visible throughout the app -->
+
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Menu</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#about">EET WebRTC</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://es.linkedin.com/in/alex-alb%C3%A0s-8b961454" target="_blank">Alex Albas</a></li>
+            <li><a href="https://es.linkedin.com/in/gerard-auguets-pulido-937915b4" target="_blank">Gerard Auguets</a></li>
+            <li><a href="https://www.eet.upc.edu/?set_language=es" target="_blank">UPC</a></li>
+            <li><a href="https://www.w3.org" target="_blank">About</a></li>
+        </ul>
+    </div><!--/.nav-collapse -->
+</div>
+</nav>
+
+<div class="jumbotron">
+  <div class="container">
+      <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+              <div id="cameraSelector">
+                  <div class="form-inline form-group">
+                    <label for="camera">Video</label>
+                    <select id="camera" class="form-control">
+                    </select>
+                </div>
+            </div>
+            <section class="widget_container">
+              <div class="widget_body">
+                  <video id="myVideoTag" class="mini_video" width="320" height="240" autoplay ="true" muted = "muted" ></video>
+                  <video id="theirVideoTag" class="large_video" width="420" height="340" autoplay></video>
+              </div>
+          </section>
+          <div class="actions-holder">
+
+              <div class="form-inline form-group">
+                  <button id="muteMyself" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-volume-off" aria-hidden="true"></span>Mute Myself</button>
+                  <button id="pauseMyVideo" class="btn btn-primary btn-xs" ><span class="glyphicon glyphicon-pause" aria-hidden="true"></span>Pause Video</button>
+                  <button id = "shareScreen" class="btn btn-primary btn-xs" href="javascript:void(0)" style="display: true;"><span class="glyphicon glyphicon-share" aria-hidden="true"></span>Share Screen</button>
+                  <button id=fileSharing class="btn btn-primary btn-xs">File Sharing</button>
+              </div>
+              <div class="form-inline form-group">
+                <!--Form load file -->
+                <form class="send-file form-inline">
+                 <div class="form-group" style="margin: 0 auto;">
+                  <input type="file" id="sendFile" style="margin: 0 auto;" /><br/>
+                  <div class="progress">
+                      <div id="fileProgress" class="progress-bar  progress-bar-striped active progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="1" aria-valuemax="100" style="width: 40%">
+                          <span class="sr-only">40% Complete (success)</span>
+                      </div>
+                  </div>
+                  <a id="receivedFileLink"></a>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+  <div id="chat" class="chat form-inline">
+      <div class="form-group">
+         <label class="sr-only" for="myName">Your Name</label>
+         <input type="text" class="form-control" id="myName" placeholder="Your Name">
+     </div>
+     <div class="form-group">
+         <label class="sr-only" for="myMessage">Message</label>
+         <input type="text" class="form-control" id="myMessage" placeholder="Message">
+     </div>
+
+     <button type="submit"  id="sendMessage" class="btn btn-success">Enviar</button>
+     <button id="clear"  class="btn btn-danger">Clear</button>
+
+ </div>
+
+ <div  id="chatAreaOutput" class="form-group">
+     <label >Message Output:</label>
+     <div id="chatArea"  class=" bg-success">
+        <!--
+         <p class="mensaje izquierda label label-success text-left clearfix">Mis mensajes</p>
+         <p class="mensaje derecha pull-right label label-info text-right clearfix">Otros mensajes</p> <-->
+     </div>
+ </div>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div  id="signalingAreaOutput" class="form-group">
+                <label >Signaling Messages:</label>
+                <div id="signalingArea"  class=" bg-warning">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+            //Referencing to video tags
+            var myVideoArea = document.querySelector("#myVideoTag");
+            var theirVideoArea = document.querySelector("#theirVideoTag");
+            //Reference to the video selector
+            var videoSelect = document.querySelector('#camera');
+            //References to chat text selector
+            var myName = document.querySelector("#myName");
+            var myMessage = document.querySelector("#myMessage");
+            var sendMessage = document.querySelector("#sendMessage");
+            var chatArea = document.querySelector("#chatArea");
+            // Cambio Aqui!!!
+            var myChatArea = document.getElementById("chatArea").getElementsByClassName('mensaje izquierda label label-success text-left clearfix');
+            
+
+
+            var clear = document.querySelector("#clear");
+            var shareScreen = document.querySelector("#shareScreen");
+
+
+            //var ROOM = "chat";
+            //Getting a Room
+            var ok = true;
+            while(ok===true) {
+                var ROOM = prompt('Hey! \ntype a room name');
+                if(ROOM ==="" ){
+                    alert("You must write a Room name!! Try Again!")
+                }else{
+                    alert("Now you can share your " + ROOM  + " room :)");
+                    ok=false;
+                }
+            }
+            //Getting user name
+             /*var yourName = document.getElementById('myName');
+             yourName.innerHTML = prompt("Write your name: ");
+             console.log(yourName);
+             */
+
+            var SIGNAL_ROOM = ROOM;
+            //File sharing
+            var FILES_ROOM = "files";
+            //Referencing to signaling messages
+            var signalingArea = document.querySelector("#signalingArea");
+
+             //Referencing to P2P files
+             var sendFile = document.querySelector("input#sendFile");
+             var fileProgress = document.querySelector("progress#fileProgress");
+             var downloadLink = document.querySelector('a#receivedFileLink');
+
+
+             var configuration = {
+                'iceServers': [{
+                    'url': 'stun:stun.l.google.com:19302',
+                    'url': 'stun:stun1.l.google.com:19302'
+                }]
+            };
+            var rtcPeerConn;
+            //Data channel options
+            var dataChannelOptions = {
+                ordered:false,
+                maxRetransmitTime:100 //miliseconds
+            };
+            var dataChannel;
+            var receivedFileName;
+            var receivedFileSize;
+            //Getting all the Media devices connected to our browser
+            if (typeof MediaStreamTrack === 'undefined' || typeof MediaStreamTrack.getSources === 'undefined') {
+                document.querySelector("#cameraSelector").style.visibility = "hidden";
+            } else {
+                MediaStreamTrack.getSources(getCameras);
+
+                //console.log(MediaStreamTrack.getMediaDevices(getCameras));
+            }
+
+            /********Setting up our socket.io client**********/
+
+            //Connect to our socket client
+            io = io.connect();
+            //Message type 'ready' implies that our server will announce a new client join to the room.
+            io.emit('ready', {
+                "chat_room": ROOM,
+                "signal_room": SIGNAL_ROOM,
+                "files_room":FILES_ROOM
+            });
+
+            //Send a firts signaling message to anyone listening
+            //Normally it would be on a button click
+            io.emit('signal', {
+                "type": "user_here",
+                "message": "Are you ready for a call?",
+                "room": SIGNAL_ROOM
+            });
+
+            //Handle the signalling message from the server
+            io.on('signaling_message', function (data) {
+                displaySignalMessage("Signal received: " + data.type);
+
+                //Setting up the RTC Peer Connection object
+                if (!rtcPeerConn) {
+                    console.log("Start Signaling?");
+                    startSignaling();
+
+                    console.log('Yes, Signalling has been started!!');
+                }
+                if (data.type != "user_here") {
+                    var message = JSON.parse(data.message);
+                    if (message.sdp) {
+                        rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+                            //if we have received an offer, we need to answer
+                            if (rtcPeerConn.remoteDescription.type == 'offer') {
+                                rtcPeerConn.createAnswer(sendLocalDesc, logError);
+                            }
+                        }, logError);
+                    } else {
+                        rtcPeerConn.addIceCandidate(new RTCIceCandidate(message.candidate));
+                    }
+                }
+            });
+
+            //When metadata files are arriving from the server...put on local variables
+            io.on('files', function(data){
+                receivedFileName = data.filename;
+                receivedFileSize = data.filesize;
+                displaySignalMessage("websockets says the file on it's way is " + receivedFileName + "(" + receivedFileSize + ")" );
+            });
+
+            /************SIGNALLING****************/
+
+            function startSignaling() {
+                displaySignalMessage("starting signaling...");
+                // overcome temporary browser differences 
+                RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+                rtcPeerConn = new RTCPeerConnection(configuration,null);
+                //Setting up datachannel
+                //dataChannel = rtcPeerConn.createDataChannel('textMessages', dataChannelOptions);
+                //dataChannel.onopen = dataChannelStateChanged;
+                //rtcPeerConn.ondatachannel = receiveDataChannel;
+
+                //Send any ice candidates to the other peer
+                rtcPeerConn.onicecandidate = function (evt) {
+                    if (evt.candidate) {
+                        io.emit('signal', {
+                            "type": "ice candidate",
+                            "message": JSON.stringify({
+                                'candidate': evt.candidate
+                            }),
+                            "room": SIGNAL_ROOM
+                        });
+                        displaySignalMessage("Completed that ICE candidate");
+                    }
+                };
+
+                            //let the 'negotiationneeded' event trigger offer generation (SDP offer)
+                rtcPeerConn.onnegotiationneeded = function () {
+                    displaySignalMessage("on negotiation called");
+                    rtcPeerConn.createOffer(sendLocalDesc, logError);
+                };
+                
+                //Once remote stream arrives, show it in the remote video element
+                rtcPeerConn.onaddstream = function (evt) {
+                    displaySignalMessage("going to add their stream...");
+                    theirVideoArea.src = URL.createObjectURL(evt.stream);
+                };
+
+                //Get the local stream , show it in our video tag and add it to be sent
+
+                //Depending on which browser we are, getUserMedia will have some of this references
+                navigator.getUserMedia = (
+                                          navigator.getUserMedia ||
+                                          navigator.webkitGetUserMedia ||
+                                          navigator.mozGetUserMedia ||
+                                          navigator.msGetUserMedia);
+                navigator.getUserMedia({
+                    'audio': true,
+                    'video': true
+                        //Once the stream is created, display in myVideo tag, and add our stream as a source of audio/video to our RTCPeerConn
+                    }, function (stream) {
+                        displaySignalMessage("going to display my stream...");
+                        localStream = stream;
+                        myVideoArea.src = URL.createObjectURL(stream);
+                    //
+                    rtcPeerConn.addStream(stream);
+                }, logError);
+
+            } //End start signalling
+            //It will generate a local session description, with all the browser info like:
+            // Browser video coder, protocol used, resolution,...sent for the signalling channel.
+            function sendLocalDesc(desc) {
+                rtcPeerConn.setLocalDescription(desc, function () {
+                    displaySignalMessage("sending local description");
+                    console.log(rtcPeerConn.localDescription);
+                    io.emit('signal', {
+                        "type": "SDP",
+                        "message": JSON.stringify({
+                            'sdp': rtcPeerConn.localDescription
+                        }),
+                        "room": SIGNAL_ROOM
+                    });
+                }, logError)
+            }
+
+            function logError(error) {
+                displaySignalMessage(error.name + ': ' + error.message);
+            }
+            //Handling the announcement: Display when new user has join into the room
+            io.on('announce', function (data) {
+                displayMessage(data.message);
+            });
+            //Handling the text message
+            io.on('message', function (data) {
+                displayMessage(data.author + ": " + data.message);
+            });
+
+            //Listener for "submit button". When "submit" is pressed, socket "emit" a json object to the server.
+            sendMessage.addEventListener('click', function (ev) {
+                io.emit('send', {
+                    "author": myName.value,
+                    "message": myMessage.value,
+                    "room": ROOM
+                });
+                ev.preventDefault();
+            }, false);
+
+            //displayMessage method
+            function displayMessage(message) {
+                //Append the message into chatArea div
+                chatArea.innerHTML = chatArea.innerHTML + "<br/>" + message;
+                //myChatArea.innerHTML = myChatArea.innerHTML + "<br/>" + message;
+            }
+            //displaySignalingMessage method
+            function displaySignalMessage(message) {
+                //Append the message into chatArea div
+                signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
+            }
+
+            /**************MUTE/PAUSE STREAMS******************/
+            var muteMyself = document.querySelector("#muteMyself");
+            var pauseMyVideo = document.querySelector("#pauseMyVideo");
+            var isMuted=false;
+            muteMyself.addEventListener('click', function (ev) {
+                console.log("muting/unmuting myself");
+                //console.log(MediaStream.active);
+
+                var streams = rtcPeerConn.getLocalStreams();
+                for (var stream of streams) {
+                    for (var audioTrack of stream.getAudioTracks()) {
+                        if (audioTrack.enabled) {
+                            muteMyself.innerHTML = "Unmute"
+                        } else {
+                            muteMyself.innerHTML = "Mute Myself"
+                        }
+                        audioTrack.enabled = !audioTrack.enabled;
+                        //document.getElementById("myVideoTag").muted = !isMuted;
+                        //isMuted = !isMuted;
+
+                    }
+                    console.log("Local stream: " + stream.id);
+                }
+                ev.preventDefault();
+            }, false);
+
+            pauseMyVideo.addEventListener('click', function (ev) {
+                console.log("pausing/unpausing my video");
+                var streams = rtcPeerConn.getLocalStreams();
+                for (var stream of streams) {
+                    for (var videoTrack of stream.getVideoTracks()) {
+                        if (videoTrack.enabled) {
+                            pauseMyVideo.innerHTML = "Start Video"
+                        } else {
+                            pauseMyVideo.innerHTML = "Pause Video"
+                        }
+                        videoTrack.enabled = !videoTrack.enabled;
+                    }
+                    console.log("Local stream: " + stream.id);
+                }
+                ev.preventDefault();
+            }, false);
+
+            clear.addEventListener('click', function (ev) {
+                console.log("cleaning...");
+                chatArea.innerHTML = "";
+                ev.preventDefault();
+            }, false);
+
+
+        //Getting all cameras connected to our browser
+        function getCameras(sourceInfos) {
+            for (var i = 0; i < sourceInfos.length; ++i) {
+                var sourceInfo = sourceInfos[i];
+                var option = document.createElement('option');
+                option.value = sourceInfo.id;
+                if (sourceInfo.kind === 'video') {
+                    option.text = sourceInfo.label || 'camera' + (videoSelect.length + 1);
+                    videoSelect.appendChild(option);
+                }
+            }
+        }
+
+
+
+
+
+        /************DATA CHANNEL CODE*****************/
+        /*
+         function dataChannelStateChanged(){
+            console.log("dataChannelState");
+            if(dataChannel.readyState ==='open'){
+                displaySignalMessage("Data Channel open");
+                dataChannel.onmessage = receiveDataChannelMessage;
+            }
+        }
+        function receiveDataChannel(event){
+            displaySignalMessage("Receiving a data channel");
+            dataChannel = event.channel;
+            dataChannel.onmessage = receiveDataChannelMessage;
+        }
+        function receiveDataChannelMessage(event){
+            displaySignalMessage("incoming message");
+            displayMessage("From DataChannel: " + event.data);
+        }
+         //Listener when "upload button" is pressed
+        sendFile.addEventListener('change', function(ev){
+            var file = sendFile.files[0];
+            displaySignalMessage("sending file" + file.name + " (" + file.size + ")...");
+            io.emit('files', {
+                "filename":file.name,
+                "filesize":file.size,
+                "room":FILES_ROOM
+            });
+
+        },false);
+
+        //*/
+    </script>
+</body>
+
+</html>
